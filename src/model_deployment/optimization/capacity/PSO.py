@@ -12,6 +12,7 @@ from scipy.optimize import differential_evolution
 # Constants
 eta_batt = 0.8123  # Battery charging efficiency
 
+# >>> REPLACE THESE WITH YOUR PATHS !!! <<<
 LOAD_DATA_PATH = "./samples/Tanintharyi_13.1304_98.8394_131.csv"
 PV_DATA_PATH = "./res/pv/Tanintharyi_13.1304_98.8394.csv"
 
@@ -25,8 +26,9 @@ pv_ts = pd.read_csv(PV_DATA_PATH)["electricity"].values
 
 # Example load and PV generation data per unit capacity
 # E_PV here represents the energy generated per unit of PV capacity over time [Wh/W]
-E_load = load_ts[:48]  # Energy load over time [Wh]
-E_PV = pv_ts[:48]  # Energy generated per unit PV capacity [Wh/W]
+hours = 24 * 2
+E_load = load_ts[:hours]  # Energy load over time [Wh]
+E_PV = pv_ts[:hours]  # Energy generated per unit PV capacity [Wh/W]
 # Battery initial state of charge
 battery_initial_soc = 0  # Initial state of charge
 
