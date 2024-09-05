@@ -35,8 +35,13 @@ battery_initial_soc = 0  # Initial state of charge
 
 def energy_balance(PV_capacity, battery_capacity):
     """Calculate energy balance over the time period.
-    PV_capacity: Total PV capacity [W]
-    battery_capacity: Total battery capacity [Wh]
+
+    Args:
+        PV_capacity (float): PV capacity [W]
+        battery_capacity (float): Battery capacity [W]
+
+    Returns:
+        E_batt (np.array): Battery energy balance [Wh]
     """
     PV_output = PV_capacity * E_PV  # Actual energy produced by the PV system [Wh]
     E_batt = np.zeros_like(E_load)
@@ -59,7 +64,14 @@ def energy_balance(PV_capacity, battery_capacity):
 
 
 def cost_func(x):
-    """Objective function to minimize"""
+    """Objective function to minimize.
+
+    Args:
+        x (np.array): Battery and PV capacity [W]
+
+    Returns:
+        float: Total cost
+    """
     PV_capacity = x[0]
     battery_capacity = x[1]
 
@@ -78,14 +90,27 @@ def cost_func(x):
 
 # Constraints: Ensure demand is met
 def demand_constraint(x):
+    """Checks if the demand is met.
+    Args:
+        x (np.array): Battery and PV capacity [W]
+
+    Returns:
+        float: Total cost
+    """
     PV_capacity = x[0]
     battery_capacity = x[1]
     E_BAT = energy_balance(PV_capacity, battery_capacity)
     return np.min(E_BAT + PV_capacity * E_PV - E_load)
 
 
-def constrained_lcoe(x):
-    """Objective function that penalizes if constraints are violated"""
+def constrained_cost(x):
+    """Objective function that penalizes if constraints are violated.
+    Args:
+        x (np.array): Battery and PV capacity [W]
+
+    Returns:
+        float: Total cost
+    """
     constraint_violation = demand_constraint(x)
     if constraint_violation < 0:
         # Apply a large penalty if the constraint is violated
@@ -100,7 +125,7 @@ bounds = [(0, 1000), (0, 5000)]  # Lower and upper bounds
 
 # Attempt optimization with different methods or tweaks
 result = differential_evolution(
-    constrained_lcoe, bounds, strategy="best1bin", maxiter=1000, popsize=15, tol=1e-7
+    constrained_cost, bounds, strategy="best1bin", maxiter=1000, popsize=15, tol=1e-7
 )
 
 # Set print options for prettier output
