@@ -37,7 +37,6 @@ diesel price MYANMAR: https://www.globalpetrolprices.com/Burma-Myanmar/diesel_pr
 
 """
 
-from functools import lru_cache
 import numpy as np
 import pandas as pd
 from scipy.optimize import differential_evolution

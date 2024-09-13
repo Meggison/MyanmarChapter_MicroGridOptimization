@@ -1,5 +1,8 @@
 from math import ceil
 import pandas as pd
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from src.data_collection.renewable_ninja import get_pv_output
 from src.data_collection.supabase import get_village_cluster_data
@@ -75,3 +78,7 @@ if __name__ == "__main__":
         optimal_diesel_capacity,
         optimal_dispatch,
     ) = run(308, 14, "2024-09-12")
+    print(optimal_pv_capacity)
+    print(optimal_battery_capacity)
+    print(optimal_diesel_capacity)
+
