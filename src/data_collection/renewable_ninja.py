@@ -12,17 +12,21 @@ Notes:
 
 
 """
+import os
 from time import sleep
 import pandas as pd
 import requests
+from src.data_collection.utilities import mem_cache
 
 # >> IMPORTANT: get your own token from https://www.renewables.ninja/documentation/api <<
+# and add as an environment variable << ask chat gpt if you don't know how
 # This script will not work without it!
-API_TOKEN = "INSERT YOUR API TOKEN HERE"
+API_TOKEN = os.getenv('RENEWABLES_NINJA_API_TOKEN')
 
 BASE_URL = 'https://www.renewables.ninja/api/data'
 
 
+@mem_cache.cache
 def get_heating_demand(start_date, end_date, lat, lon):
     """Pulls daily demand data for a given location + time period.
 
@@ -74,7 +78,7 @@ def get_heating_demand(start_date, end_date, lat, lon):
         # Handle errors
         response.raise_for_status()
 
-
+@mem_cache.cache
 def get_pv_output(start_date, end_date, lat, lon):
     """Pulls hourly PV output for a given location + time period.
 

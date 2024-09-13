@@ -38,12 +38,11 @@ diesel price MYANMAR: https://www.globalpetrolprices.com/Burma-Myanmar/diesel_pr
 """
 
 from functools import lru_cache
-import time
 import numpy as np
 import pandas as pd
 from scipy.optimize import differential_evolution
 
-SIMULATION_YEARS = 20
+SIMULATION_YEARS = 5
 
 # Battery Constants
 RTE_BATT = 0.95  # round trip efficiency of the battery
@@ -59,26 +58,14 @@ PV_COST = 720
 DIESEL_COST = 261
 DIESEL_FUEL = 0.2
 
-# >>> REPLACE THESE WITH YOUR PATHS !!! <<<
-LOAD_DATA_PATH = "./samples/Tanintharyi_13.1304_98.8394_131.csv"
-PV_DATA_PATH = "./res/pv/Tanintharyi_13.1304_98.8394.csv"
-
-load_df = pd.read_csv(LOAD_DATA_PATH)
-load_df["timestamp"] = pd.to_datetime(load_df["timestamp"])
-load_df.set_index("timestamp", inplace=True)
-hourly_load = load_df.resample("H").first()
-
-load_ts = hourly_load["kW"].values
-pv_ts = pd.read_csv(PV_DATA_PATH)["electricity"].values
-
 # Example load and PV generation data per unit capacity
 # E_PV here represents the energy generated per unit of PV capacity over time [kWh/kW]
 hours = 24 * 7 * 4 * 3
-E_load = load_ts[:hours]  # Energy load over time [kWh]
-E_PV = pv_ts[: len(E_load)]  # Energy generated per unit PV capacity [kWh/kW]
+# E_load = load_ts[:hours]  # Energy load over time [kWh]
+# E_PV = pv_ts[: len(E_load)]  # Energy generated per unit PV capacity [kWh/kW]
 
-@lru_cache
-def energy_balance(pv_capacity, battery_capacity, diesel_capacity):
+
+def energy_balance(pv_capacity, battery_capacity, diesel_capacity, E_load, E_PV):
     """Calculate energy balance over the time period.
 
     Args:
@@ -94,7 +81,7 @@ def energy_balance(pv_capacity, battery_capacity, diesel_capacity):
     E_diesel = np.zeros_like(E_load)
     # State of charge starts at initial SOC
     soc = battery_initial_soc * battery_capacity
-    max_battery_discharge = MAX_DISCHARGE * battery_capacity
+    max_battery_discharge = (1 -MAX_DISCHARGE) * battery_capacity
     for t in range(len(E_load)):
         surplus = PV_output[t] - E_load[t]
 
@@ -112,14 +99,14 @@ def energy_balance(pv_capacity, battery_capacity, diesel_capacity):
             E_batt[t] = max(final_discharge, 0)
             surplus += final_discharge
 
-        if surplus < 0:
+        if surplus < -0.0000001:
             E_diesel[t] = min(-surplus, diesel_capacity)
         C_batt[t] = soc
 
     return E_batt, E_diesel, C_batt
 
 
-def cost_func(x):
+def cost_func(x, E_load, E_PV):
     """Objective function to minimize.
 
     Args:
@@ -137,7 +124,9 @@ def cost_func(x):
     diesel_capacity_cost = diesel_capacity * DIESEL_COST
 
     # levelized cost of energy (LCOE)
-    _, E_diesel, _ = energy_balance(pv_capacity, battery_capacity, diesel_capacity)
+    _, E_diesel, _ = energy_balance(
+        pv_capacity, battery_capacity, diesel_capacity, E_load, E_PV
+    )
     # the cost of renewable energy will not be immediately visible with few demand observations
     # so we need to scale the demand with a load factor to see the long term benefit
     # otherwise it will pick full conventional generation and not the renewable energy
@@ -153,7 +142,7 @@ def cost_func(x):
 
 
 # Constraints: Ensure demand is met
-def demand_constraint(x):
+def demand_constraint(x, E_load, E_PV):
     """Checks if the demand is met.
     Args:
         x (np.array): Battery and PV capacity [kW]
@@ -164,11 +153,13 @@ def demand_constraint(x):
     pv_capacity = x[0]
     battery_capacity = x[1]
     diesel_capacity = x[2]
-    E_BAT, E_diesel, _ = energy_balance(pv_capacity, battery_capacity, diesel_capacity)
+    E_BAT, E_diesel, _ = energy_balance(
+        pv_capacity, battery_capacity, diesel_capacity, E_load, E_PV
+    )
     return np.min(E_BAT + E_diesel + pv_capacity * E_PV - E_load)
 
 
-def constrained_cost(x):
+def constrained_cost(x, E_load, E_PV):
     """Objective function that penalizes if constraints are violated.
     Args:
         x (np.array): Battery and PV capacity [kW]
@@ -176,29 +167,28 @@ def constrained_cost(x):
     Returns:
         float: Total cost
     """
-    constraint_violation = demand_constraint(x)
+    E_load_arr = np.array(E_load)
+    E_PV_arr = np.array(E_PV)
+    constraint_violation = demand_constraint(x, E_load_arr, E_PV_arr)
     if constraint_violation < -0.0001:
         # Apply a large penalty if the constraint is violated
         return np.inf
-    return cost_func(x)
+    return cost_func(x, E_load_arr, E_PV_arr)
 
 
-if __name__ == "__main__":
-    # start timer
-    start = time.time()
+def optimize_capacity(E_load, E_PV):
     bounds = [(0, 1000), (0, 5000), (0, 1000)]  # Lower and upper bounds
 
     # Attempt optimization with different methods or tweaks
     result = differential_evolution(
-        constrained_cost, bounds, maxiter=5000, popsize=15, tol=1e-7, workers=-1
+        constrained_cost,
+        bounds,
+        args=(tuple(E_load), tuple(E_PV)),
+        maxiter=5000,
+        popsize=15,
+        tol=1e-7,
+        workers=-1,
     )
-
-    # end timer
-    end = time.time()
-    print(f"Time taken: {end - start} seconds")
-
-    # Set print options for prettier output
-    np.set_printoptions(precision=1, suppress=True)
 
     # Check if the optimization was successful
     if result.success:
@@ -210,7 +200,11 @@ if __name__ == "__main__":
         print(f"Optimal diesel capacity: {optimal_diesel_capacity} kW")
         print(f"Minimum Cost: {result.fun}")
         E_Batt, E_diesel, C_batt = energy_balance(
-            optimal_pv_capacity, optimal_battery_capacity, optimal_diesel_capacity
+            optimal_pv_capacity,
+            optimal_battery_capacity,
+            optimal_diesel_capacity,
+            E_load,
+            E_PV,
         )
         df = pd.DataFrame(
             {
@@ -221,9 +215,12 @@ if __name__ == "__main__":
                 "E_load": E_load,
             }
         )
-        df['Loss'] = df['E_load'] - df['E_PV'] - df['E_diesel'] - df['E_Batt']
-        df.head()
+        return (
+            optimal_pv_capacity,
+            optimal_battery_capacity,
+            optimal_diesel_capacity,
+            df,
+        )
 
     else:
-        print(f"Optimization failed: {result.message}")
-        print(f"Last result: {result.x}")
+        raise ValueError("Optimization failed")
