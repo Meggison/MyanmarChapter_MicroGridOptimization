@@ -1,7 +1,7 @@
 from math import ceil
 import pandas as pd
 from dotenv import load_dotenv
-
+import numpy as np
 load_dotenv()
 
 from src.data_collection.renewable_ninja import get_pv_output
@@ -9,6 +9,8 @@ from src.data_collection.supabase import get_village_cluster_data
 from src.data_collection.utilities import comparable_date
 from src.model_development.optimization.capacity.index import optimize_capacity
 from src.model_development.optimization.demand.index import build_settlement_demand
+from joblib import load
+import xgboost as xgb
 
 
 def run(
@@ -50,6 +52,31 @@ def run(
     # use last years pv output for our forecast
     unit_pv = get_pv_output(pv_start_date, pv_end_date, lat, lon)
     unit_pv = pd.DataFrame(unit_pv.values())
+
+    #added the PV model
+    model = xgb.XGBRegressor(objective='reg:squarederror',
+                                 n_estimators=200,
+                                 subsample=1,
+                                 learning_rate=0.05,
+                                 max_depth=2,
+                                 colsample_bytree=1,
+                                 min_child_weight=5)
+
+    model.load_model("xgboost_model.json")
+    print('Model load successfull')
+    #calculate features
+    unit_pv['is_day_sample'] = 0   # add the value if is day or not
+    unit_pv['electricity_lag_2'] = unit_pv['electricity'].shift(2)
+    unit_pv['electricity_lag_2'].iloc[0:2] =0  #filling up the NaNs
+    pv_vals = unit_pv["electricity"].values
+    day_inp_array = unit_pv["is_day_sample"].values
+    is_day_lag_2_array = unit_pv["electricity_lag_2"].values
+
+    feature_inp_concat = np.column_stack((pv_vals, day_inp_array, is_day_lag_2_array))
+    pv_forecast = model.predict(feature_inp_concat)
+    print('pv_forecast')
+    print(pv_forecast)
+
     # get optimal capacities + dispatch
     # TODO: currently this trains on the comparable time period from last year
     # for real optimal capacities, we need to train on at least a full year
@@ -61,8 +88,11 @@ def run(
         optimal_battery_capacity,
         optimal_diesel_capacity,
         optimal_dispatch,
-    ) = optimize_capacity(demand.loc[::60, "kW"].values, unit_pv["electricity"].values)
+    ) = optimize_capacity(demand.loc[::60, "kW"].values, pv_forecast)
     optimal_dispatch["timestamp"] = demand.loc[::60, "timestamp"].values
+    optimal_dispatch_json = optimal_dispatch.to_json(orient="records")
+    print('optimal_dispatch_json',optimal_dispatch_json)
+
     return (
         optimal_pv_capacity,
         optimal_battery_capacity,
@@ -77,8 +107,9 @@ if __name__ == "__main__":
         optimal_battery_capacity,
         optimal_diesel_capacity,
         optimal_dispatch,
-    ) = run(308, 14, "2024-09-12")
+    ) = run(308, 2, "2024-09-12")
     print(optimal_pv_capacity)
     print(optimal_battery_capacity)
     print(optimal_diesel_capacity)
 
+    print(optimal_dispatch.head())
