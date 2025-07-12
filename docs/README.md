@@ -1,3 +1,0 @@
-# MyanmarChapter_MicroGridOptimization
-
-Documentation
