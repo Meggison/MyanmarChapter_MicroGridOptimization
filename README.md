@@ -65,7 +65,7 @@ This project develops an intelligent microgrid optimization system specifically 
 - **PV Capacity**: Weather-adjusted generation profiles
 - **Load Forecasting**: Village-scale demand prediction
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 ├── src/
@@ -110,7 +110,7 @@ optimal_pv, optimal_battery, optimal_diesel, dispatch = run(
 )
 ```
 
-## 📈 Key Findings
+## Key Findings
 
 1. **Renewable Energy Viability**: High solar generation potential across Myanmar with predictable seasonal patterns
 2. **Optimal System Design**: Hybrid PV-battery-diesel systems provide most cost-effective solution
@@ -147,6 +147,6 @@ This framework provides a replicable methodology for:
 
 Contributions welcome! This project demonstrates sustainable electrification approaches applicable across Southeast Asia and similar developing regions.
 
-## 📝 License
+## License
 
 This project supports sustainable development goals and rural electrification initiatives in Myanmar.
