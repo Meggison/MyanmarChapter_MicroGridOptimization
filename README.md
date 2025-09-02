@@ -4,11 +4,11 @@
 
 An advanced machine learning and optimization framework for sustainable rural electrification in Myanmar, combining renewable energy forecasting, demand modeling, and multi-objective capacity optimization.
 
-## 🎯 Project Overview
+## Project Overview
 
 This project develops an intelligent microgrid optimization system specifically designed for Myanmar's rural electrification challenges. By leveraging AI-driven forecasting models and sophisticated optimization algorithms, the system determines optimal configurations for solar PV, battery storage, and diesel generators to provide reliable and cost-effective electricity access.
 
-## 🚀 Key Achievements
+## Key Achievements
 
 ### Forecasting Models Performance
 - **Prophet Model**: 91.8% accuracy (R² = 0.918) for 24-hour solar generation forecasting
@@ -28,7 +28,7 @@ This project develops an intelligent microgrid optimization system specifically 
 - **Hydropower Potential**: 45+ years of water discharge data across 7 river stations
 - **Seasonal Patterns**: Comprehensive understanding of Myanmar's energy demand cycles
 
-## 🛠️ Technical Architecture
+## Technical Architecture
 
 ### Core Components
 - **Data Collection**: Supabase integration, Renewables Ninja API
@@ -44,7 +44,7 @@ This project develops an intelligent microgrid optimization system specifically 
 - Cost-optimized CAPEX/OPEX minimization
 - Scalable village cluster analysis framework
 
-## 📊 Results & Impact
+## Results & Impact
 
 ### Model Performance Comparison
 | Model | RMSE (kW) | MAE (kW) | R² Score | Accuracy |
@@ -85,7 +85,7 @@ This project develops an intelligent microgrid optimization system specifically 
 └── reports/                      # Generated outputs
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 ```bash
@@ -118,7 +118,7 @@ optimal_pv, optimal_battery, optimal_diesel, dispatch = run(
 4. **Investment Priorities**: Data-driven identification of high-impact regions for electrification
 5. **Technical Feasibility**: MPC-controlled microgrids demonstrate reliable operation under varying conditions
 
-## 🔬 Methodology
+## Methodology
 
 ### Demand Modeling
 - Stochastic appliance usage simulation based on Myanmar household surveys
@@ -135,7 +135,7 @@ optimal_pv, optimal_battery, optimal_diesel, dispatch = run(
 - Energy balance constraints ensuring 100% load coverage
 - Battery state-of-charge modeling with efficiency losses
 
-## 🌍 Impact & Applications
+## Impact & Applications
 
 This framework provides a replicable methodology for:
 - **Policy Planning**: Evidence-based electrification strategies
@@ -143,7 +143,7 @@ This framework provides a replicable methodology for:
 - **System Design**: Optimal microgrid configurations
 - **Resource Assessment**: Renewable energy potential mapping
 
-## 🤝 Contributing
+## Contributing
 
 Contributions welcome! This project demonstrates sustainable electrification approaches applicable across Southeast Asia and similar developing regions.
 
