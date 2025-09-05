@@ -146,7 +146,3 @@ This framework provides a replicable methodology for:
 ## Contributing
 
 Contributions welcome! This project demonstrates sustainable electrification approaches applicable across Southeast Asia and similar developing regions.
-
-## License
-
-This project supports sustainable development goals and rural electrification initiatives in Myanmar.
