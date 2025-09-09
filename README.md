@@ -84,7 +84,6 @@ This project develops an intelligent microgrid optimization system specifically 
 │   ├── SARIMA.ipynb
 │   └── grdc_analysis.ipynb
 ├── docs/                         # Documentation
-└── reports/                      # Generated outputs
 ```
 
 ## Quick Start
