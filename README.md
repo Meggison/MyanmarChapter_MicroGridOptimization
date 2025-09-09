@@ -4,6 +4,8 @@
 
 An advanced machine learning and optimization framework for sustainable rural electrification in Myanmar, combining renewable energy forecasting, demand modeling, and multi-objective capacity optimization.
 
+Link to the main repository on DagsHub [here](https://dagshub.com/Omdena/MyanmarChapter_MicroGridOptimization)
+
 ## Project Overview
 
 This project develops an intelligent microgrid optimization system specifically designed for Myanmar's rural electrification challenges. By leveraging AI-driven forecasting models and sophisticated optimization algorithms, the system determines optimal configurations for solar PV, battery storage, and diesel generators to provide reliable and cost-effective electricity access.
