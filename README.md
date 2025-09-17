@@ -1,5 +1,3 @@
-# Myanmar Microgrid Optimization
-
 ## Microgrid Optimization for Rural Electrification in Myanmar
 
 An advanced machine learning framework for sustainable rural electrification in Myanmar, combining renewable energy forecasting, demand modeling, and multi-objective capacity optimization.
