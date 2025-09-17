@@ -1,8 +1,8 @@
 # Myanmar Microgrid Optimization
 
-## AI-Driven Microgrid Optimization for Rural Electrification in Myanmar
+## Microgrid Optimization for Rural Electrification in Myanmar
 
-An advanced machine learning and optimization framework for sustainable rural electrification in Myanmar, combining renewable energy forecasting, demand modeling, and multi-objective capacity optimization.
+An advanced machine learning framework for sustainable rural electrification in Myanmar, combining renewable energy forecasting, demand modeling, and multi-objective capacity optimization.
 
 Link to the main repository on DagsHub [here](https://dagshub.com/Omdena/MyanmarChapter_MicroGridOptimization)
 
